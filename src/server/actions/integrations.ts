@@ -6,7 +6,7 @@ import { requireAdmin } from "@/server/auth/admin";
 import { mercadoLivreProvider } from "@/server/integrations/mercado-livre";
 import { telegramChannel } from "@/server/integrations/telegram";
 import { publicationText } from "@/domain/forms";
-import { parseConfig } from "@/domain/config";
+import { getAppConfig } from "@/server/env";
 import { publicOffers } from "@/server/repositories/live-catalog";
 export async function refreshMarketPrice(form: FormData) {
   const { db } = await requireAdmin();
@@ -55,7 +55,7 @@ export async function publishTelegram(form: FormData) {
   const slug = String(form.get("slug"));
   const offer = (await publicOffers(slug))[0];
   if (!offer) redirect("/admin/publicacoes?result=send_failed");
-  const appUrl = parseConfig(process.env).appUrl;
+  const appUrl = getAppConfig().appUrl;
   if (!appUrl.startsWith("https://"))
     redirect("/admin/publicacoes?result=unconfigured");
   const text = publicationText(offer, appUrl);

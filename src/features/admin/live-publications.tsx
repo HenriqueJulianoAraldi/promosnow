@@ -1,7 +1,7 @@
 import { requireAdmin } from "@/server/auth/admin";
 import { publicOffers } from "@/server/repositories/live-catalog";
 import { publicationText } from "@/domain/forms";
-import { parseConfig } from "@/domain/config";
+import { getAppConfig } from "@/server/env";
 import { publishTelegram } from "@/server/actions/integrations";
 import { Submit } from "@/components/ui/submit";
 export async function LivePublications() {
@@ -17,7 +17,7 @@ export async function LivePublications() {
     process.env.TELEGRAM_ENABLED === "true" &&
     !!process.env.TELEGRAM_BOT_TOKEN &&
     !!process.env.TELEGRAM_CHANNEL_ID &&
-    parseConfig(process.env).appUrl.startsWith("https://");
+    getAppConfig().appUrl.startsWith("https://");
   return (
     <>
       <section className="panel">
@@ -49,7 +49,7 @@ export async function LivePublications() {
           return (
             <form className="send-form" action={publishTelegram} key={o.id}>
               <input type="hidden" name="slug" value={o.slug} />
-              <pre>{publicationText(o, parseConfig(process.env).appUrl)}</pre>
+              <pre>{publicationText(o, getAppConfig().appUrl)}</pre>
               <label>
                 <input
                   type="checkbox"
