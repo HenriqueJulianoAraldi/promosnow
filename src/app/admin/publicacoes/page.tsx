@@ -1,6 +1,22 @@
+import { getAppState } from "@/server/env";
+import { LivePublications } from "@/features/admin/live-publications";
+import { ResultNotice } from "@/features/admin/result";
 import { PublicationPreview } from "@/features/admin/publication-preview";
 import { getDemoCatalog } from "@/server/services/catalog";
-export default function Publications() {
+export default async function Publications({
+  searchParams,
+}: {
+  searchParams: Promise<{ result?: string }>;
+}) {
+  if (getAppState() === "live") {
+    const { result } = await searchParams;
+    return (
+      <>
+        <ResultNotice code={result} />
+        <LivePublications />
+      </>
+    );
+  }
   return (
     <>
       <div className="admin-heading">

@@ -3,7 +3,13 @@ import { useState } from "react";
 import { categories, selectOffers, type Offer } from "@/domain/catalog";
 import { Icon } from "@/components/ui/icon";
 import { OfferCard } from "./offer-card";
-export function Catalog({ offers }: { offers: Offer[] }) {
+export function Catalog({
+  offers,
+  demo = true,
+}: {
+  offers: Offer[];
+  demo?: boolean;
+}) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("featured");
@@ -17,7 +23,9 @@ export function Catalog({ offers }: { offers: Offer[] }) {
             Um achado para cada dia<span className="orange">.</span>
           </h2>
         </div>
-        <span className="muted">Seleção de demonstração</span>
+        <span className="muted">
+          {demo ? "Seleção de demonstração" : "Ofertas revisadas"}
+        </span>
       </div>
       <div className="search-sort">
         <label className="search">

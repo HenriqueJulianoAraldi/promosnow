@@ -1,8 +1,13 @@
 import "server-only";
 import { ConfigurationError, parseConfig } from "@/domain/config";
-export function getAppState(): "demo" | "setup" {
+export function getAppState(): "demo" | "setup" | "live" {
   try {
-    return parseConfig(process.env).demoAllowed ? "demo" : "setup";
+    const config = parseConfig(process.env);
+    return config.dataMode === "supabase"
+      ? "live"
+      : config.demoAllowed
+        ? "demo"
+        : "setup";
   } catch (error) {
     // Only the field name is logged. Never log process.env or credential values.
     console.error({

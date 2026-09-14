@@ -1726,3 +1726,85 @@ tbody tr:last-child td {
     transition: none !important;
   }
 }
+
+/* Persistent administration */
+.live-form {
+  max-width: 780px;
+}
+.live-form input,
+.live-form textarea {
+  font: inherit;
+  width: 100%;
+  padding: 11px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: white;
+  color: var(--ink);
+}
+.live-form .button {
+  margin-top: 24px;
+}
+.live-form p {
+  font-size: 12px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.action-stack .button {
+  font-size: 10px;
+  padding: 8px;
+  min-height: 32px;
+}
+.send-form {
+  padding-block: 22px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 15px;
+}
+.send-form pre,
+.publication-record pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #edf0e5;
+  padding: 20px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 13px;
+  width: 100%;
+}
+.publication-record {
+  border-bottom: 1px solid var(--line);
+  margin-top: 20px;
+}
+.offer-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+.detail-art .offer-photo {
+  max-height: 360px;
+}
+.panel + .panel {
+  margin-top: 24px;
+}
+@media (max-width: 600px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .live-form {
+    padding: 18px;
+  }
+  .send-form {
+    font-size: 12px;
+  }
+}

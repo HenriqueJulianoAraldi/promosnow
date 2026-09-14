@@ -51,7 +51,10 @@ export function PublicationPreview({ offers }: { offers: Offer[] }) {
             <>
               <h3>{offer.title}</h3>
               <p>
-                De {formatMoney(offer.referencePriceCents)}
+                De{" "}
+                {offer.referencePriceCents !== null
+                  ? formatMoney(offer.referencePriceCents)
+                  : "—"}
                 <br />
                 <strong>Por {formatMoney(offer.priceCents)}</strong>
               </p>

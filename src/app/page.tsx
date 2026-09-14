@@ -4,9 +4,31 @@ import { Icon } from "@/components/ui/icon";
 import { ProductArt } from "@/components/ui/product-art";
 import { Catalog } from "@/features/catalog/catalog";
 import { getAppState } from "@/server/env";
-import { getDemoCatalog } from "@/server/services/catalog";
-export default function Home() {
+import { getDemoCatalog, getCatalog } from "@/server/services/catalog";
+export default async function Home() {
   const demo = getAppState() === "demo";
+  if (getAppState() === "live")
+    return (
+      <>
+        <Header />
+        <main>
+          <section className="container about">
+            <span className="eyebrow">PROMOSNOW</span>
+            <h1>
+              Boas escolhas.
+              <br />
+              <span>Novos achados.</span>
+            </h1>
+            <p>
+              Compare as informações e confira as condições na loja. Podemos
+              receber comissão por compras feitas pelos links de afiliado.
+            </p>
+          </section>
+          <Catalog offers={await getCatalog()} demo={false} />
+        </main>
+        <Footer />
+      </>
+    );
   if (!demo)
     return (
       <>
@@ -84,7 +106,11 @@ export default function Home() {
             </span>
           </div>
         </div>
-        <Catalog offers={getDemoCatalog().filter((offer) => offer.status === "published")} />
+        <Catalog
+          offers={getDemoCatalog().filter(
+            (offer) => offer.status === "published",
+          )}
+        />
         <section className="container">
           <div className="telegram-panel">
             <div className="telegram-symbol">

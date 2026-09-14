@@ -1,12 +1,12 @@
 # PromosNow
 
-Base inicial de um site de promoções com catálogo público e painel de curadoria. Projeto preparado para futura integração com Supabase, Mercado Livre e Telegram.
+Site de curadoria de promoções com catálogo e painel administrativo. Esta versão implementa cadastro manual, aprovação de ofertas, sessão Supabase, consulta de preços do Mercado Livre e envio explícito ao Telegram.
 
-**Versão atual: demonstração.** Todos os produtos, preços e descontos são fictícios. Não há compras, envios, persistência, autenticação ou integrações reais nesta etapa.
+**O código precisa da migração e das configurações das contas para funcionar com dados reais.** Os testes locais não comprovam a integração com as contas de produção. Veja [ativação e validação](docs/activation.md).
 
-## Executar localmente
+## Executar
 
-Requisito: Node.js 24 LTS e npm. As versões estão fixadas no `package-lock.json`.
+Node.js 24 e npm. Dependências fixadas no lockfile.
 
 ```bash
 npm ci
@@ -14,76 +14,48 @@ cp .env.example .env.local
 npm run dev
 ```
 
-Abra `http://localhost:3000`. Não é necessário fornecer credenciais para explorar a demonstração.
+O modo padrão é uma demonstração local em `http://localhost:3000`, sem credenciais. Todos os seus preços e produtos são fictícios. Produção com `DATA_MODE=demo` mostra a página de preparação e bloqueia o painel demonstrativo.
 
-## Verificar
-
-```bash
-npm run lint
-npm run typecheck
-npm test
-npm run build
-npm run test:http
-```
-
-Ou `npm run check`. A verificação HTTP inicia servidores temporários nas portas 3101 e 3102 para testar preview, bloqueio em produção e ausência de rascunhos na resposta pública. Os testes usam o executor nativo do Node.js 24, sem dependência adicional de testes.
-
-Para verificar localmente a compilação em modo de preview:
+## Validar
 
 ```bash
-APP_ENV=preview npm run start
+npm run check
 ```
 
-Para verificar o bloqueio de dados fictícios:
+Executa lint, TypeScript, testes Node/PGlite, build e verificações HTTP de preview/produção nas portas 3101 e 3102. PGlite executa a migração em PostgreSQL local; os testes de provedores usam respostas simuladas. Nenhum teste publica mensagens ou modifica contas externas.
 
-```bash
-APP_ENV=production npm run start
-```
+## Modos e rotas
 
-Neste segundo modo, a página inicial exibe “Em breve”; o painel redireciona para a página de entrada indisponível e as ofertas fictícias não são acessíveis.
+`DATA_MODE=supabase` usa banco e autenticação reais. O acesso ao painel exige usuário autenticado listado em `admin_users`. Não existe cadastro público de administradores.
 
-## Rotas
+| Rota | Dados reais |
+| --- | --- |
+| `/` | Ofertas aprovadas, disponíveis e conferidas há menos de 24 horas |
+| `/ofertas/[slug]` | Preço, referência opcional, validade e divulgação de afiliado |
+| `/r/[code]` | Redirecionamento validado e métricas opcionais |
+| `/entrar` | Entrada com e-mail e senha do Supabase Auth |
+| `/admin` | Ofertas recentes e cliques estimados dos últimos 30 dias UTC |
+| `/admin/produtos`, `/admin/ofertas` | Cadastro conjunto de produto/oferta, revisão, aprovação e encerramento |
+| `/admin/ofertas/nova` | Novo rascunho |
+| `/admin/ofertas/[id]/editar` | Edição de rascunho |
+| `/admin/publicacoes` | Prévia, confirmação de envio e histórico do Telegram |
 
-| Caminho              | Função                                                  |
-| -------------------- | ------------------------------------------------------- |
-| `/`                  | Catálogo demonstrativo ou preparação, conforme ambiente |
-| `/ofertas/[slug]`    | Detalhes de um exemplo público                          |
-| `/sobre`             | Apresentação e estado do projeto                        |
-| `/entrar`            | Acesso à demonstração; não recebe senhas                |
-| `/admin`             | Visão geral de demonstração                             |
-| `/admin/produtos`    | Consulta dos produtos fictícios                         |
-| `/admin/ofertas`     | Consulta e filtro por situação                          |
-| `/admin/publicacoes` | Prévia local de mensagem, sem envio                     |
+O catálogo carrega até 100 ofertas recentes; o painel lista até 200. Busca e ordenação atuam sobre a lista carregada. Paginação e automação de coleta/publicação são próximas entregas.
 
-## Configuração
+## Regras principais
 
-`.env.example` descreve as variáveis. Não comitar `.env.local`, tokens ou chaves reais. Módulos em `src/server` separam o acesso à configuração e aos dados; apenas tipos, regras puras e dados públicos selecionados chegam à interface.
+- Dados públicos são retornados por funções SQL que verificam aprovação, validade, disponibilidade, preço e atualização. Rascunhos e links de ofertas inelegíveis não são expostos.
+- RLS e permissões impedem escrita direta nas tabelas. Funções de mutação conferem a condição de administrador no banco.
+- O preço aprovado não muda silenciosamente quando a API informa outro valor. A oferta sai do catálogo; encerre-a e crie uma nova revisão.
+- Links de afiliado são fornecidos pelo administrador, com HTTPS e domínios permitidos. Não há geração automática ou comprovação de comissão.
+- Telegram requer confirmação no painel. Um resultado incerto bloqueia reenvio automático; confira o canal.
+- Nenhum token deve ir para o Git. A chave secreta do Supabase é opcional, usada apenas no servidor para contagem de cliques.
 
-- `DATA_MODE=demo`: exemplos somente no desenvolvimento ou preview.
-- `DATA_MODE=supabase`: reservado; exige configuração, mas mantém a página de preparação até a implementação da persistência.
-- `APP_ENV`: `local`, `preview` ou `production`. Nunca usar `local`/`preview` em produção fora da Vercel.
-- Na Vercel, `VERCEL_ENV=production` bloqueia a demo mesmo com `APP_ENV=preview`.
-- Flags de Mercado Livre e Telegram ficam `false`. Os adaptadores desta etapa sempre retornam `not_configured`.
-- Produção não depende de um job para esconder exemplos. Catálogo e painel verificam o ambiente no servidor.
+## Documentação
 
-## Organização
+- [Ativação e roteiro de teste real](docs/activation.md)
+- [Estado da implementação e limites](docs/implementation-status.md)
+- [Validação local](docs/validation.md)
+- [Proposta histórica de arquitetura](docs/architecture.md)
 
-| Diretório        | Responsabilidade                                           |
-| ---------------- | ---------------------------------------------------------- |
-| `src/app`        | Rotas e layouts                                            |
-| `src/components` | Elementos visuais compartilhados                           |
-| `src/features`   | Interações do catálogo e do painel                         |
-| `src/domain`     | Regras puras e validação de configuração                   |
-| `src/server`     | Estado da aplicação, repositório e contratos de integração |
-| `tests`          | Regras comerciais e limites de configuração                |
-| `docs`           | Arquitetura, decisões e estado da implementação            |
-
-Leia [o estado atual](docs/implementation-status.md) e [a proposta de arquitetura](docs/architecture.md). O esquema do banco está documentado; ainda não há migração executável. As ilustrações dos produtos são SVGs próprios, sem dependência externa.
-
-## Vercel — configuração futura
-
-Importar este repositório como Next.js, usando a raiz e Node.js 24. Build: `npm run build`; instalação: `npm ci`. Usar variáveis distintas para Preview e Production. Nenhum domínio ou deploy foi criado por este código. O build não exige credenciais no modo padrão; uma publicação de produção mostra a página de preparação. Remover `noindex` apenas quando o catálogo real estiver pronto.
-
-## Próximo passo
-
-Persistência e autenticação Supabase, com testes de permissões, seguidas do cadastro manual de produtos e ofertas. Integrações externas serão implementadas somente depois de validar o acesso às contas e APIs.
+O site continua com `noindex` até concluir a validação real. A criação de um PR não aplica a migração nem configura variáveis das contas.
