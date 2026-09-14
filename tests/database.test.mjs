@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { PGlite } from "@electric-sql/pglite";
 
 test("migration, API permissions, approval, freshness and delivery deduplication", async () => {
@@ -13,14 +13,18 @@ test("migration, API permissions, approval, freshness and delivery deduplication
  create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
  grant usage on schema public,auth to anon,authenticated,service_role;
  grant execute on function auth.uid() to anon,authenticated,service_role;`);
-    await db.exec(
-      await readFile(
-        new URL(
-          "../supabase/migrations/202609140001_catalog.sql",
-          import.meta.url,
-        ),
-        "utf8",
-      ),
+    const migrationRoot = new URL("../supabase/migrations/", import.meta.url);
+    for (const file of (await readdir(migrationRoot))
+      .filter((n) => n.endsWith(".sql"))
+      .sort())
+      await db.exec(await readFile(new URL(file, migrationRoot), "utf8"));
+    assert.equal(
+      (
+        await db.query(
+          "select count(*)::int as n from pg_proc join pg_namespace on pg_namespace.oid=pronamespace where nspname='public' and prosecdef",
+        )
+      ).rows[0].n,
+      0,
     );
     await db.query("insert into auth.users values($1),($2)", [admin, outsider]);
     await db.query("insert into public.admin_users(user_id) values($1)", [

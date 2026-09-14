@@ -20,8 +20,14 @@ Os testes dos provedores usam respostas simuladas: anúncio/currency incorretos,
 
 ## Limites
 
-PGlite não é uma instância Supabase hospedada e usa uma simulação da identidade Auth. Ainda faltam testes de sessão/cookies, PostgREST e RLS no projeto real, além das consultas e envios com contas autorizadas. Nenhum teste local envia mensagem ao Telegram.
+PGlite não é uma instância Supabase hospedada e usa uma simulação da identidade Auth. PostgREST foi verificado no projeto real: catálogo HTTP 200 com lista vazia, tabelas privadas e escrita anônima HTTP 401, link inexistente sem destino. Ainda faltam sessão/cookies e escrita com administrador autorizado, além das consultas e envios com contas externas. Nenhum teste local envia mensagem ao Telegram.
 
-A revisão visual não foi concluída: o navegador disponível bloqueou localhost na entrega inicial. Conferir em preview acessível, especialmente formulários, login, navegação por teclado e celular. As verificações HTTP atuais cobrem demonstração e preparação; não comprovam o fluxo de dados reais ponta a ponta.
+A página inicial foi revisada visualmente no preview desktop. Busca e combinação de filtros foram exercitadas no navegador. Permanecem pendentes formulários reais, login, celular e revisão completa por teclado. As verificações HTTP locais cobrem demonstração e preparação; não comprovam o fluxo de dados reais ponta a ponta.
 
 ESLint 10 apresentou incompatibilidade com uma regra React do `eslint-config-next`; permanece fixado em 9.39.5. O npm marca essa série como fora de suporte. Retomar a atualização quando a configuração aceitar a série 10, sem desativar regras para mascarar o problema.
+
+## Supabase e Vercel reais
+
+As duas migrações foram aplicadas ao projeto correto e testadas em sequência no PGlite. Após os ajustes, os advisors do Supabase não retornam avisos de segurança; há apenas o informativo esperado de RLS sem política em `private.click_buckets`. Essa tabela é interna e deliberadamente não aceita acesso direto. [Explicação do advisor](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
+
+O preview gerado pela Vercel compilou com status Ready. A página de entrada foi consultada por HTTP e continua em demonstração. Isso não comprova o login real: faltam ativar o modo Supabase e criar o administrador.

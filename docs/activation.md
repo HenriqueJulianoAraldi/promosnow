@@ -1,6 +1,6 @@
 # Ativar e validar o catálogo real
 
-Este roteiro corresponde à migração `supabase/migrations/202609140001_catalog.sql`. Não executar em um projeto escolhido por suposição. Confirmar que o projeto Supabase e o projeto Vercel pertencem ao repositório `HenriqueJulianoAraldi/promosnow` e conferir o esquema existente antes de aplicar.
+Este roteiro corresponde às migrações em `supabase/migrations/`. No projeto PromosNow desta entrega, `20260914125220_catalog.sql` e `20260914125532_api_permissions.sql` já foram aplicadas; não reaplicar manualmente. Não executar em um projeto escolhido por suposição. Confirmar que o projeto Supabase e o projeto Vercel pertencem ao repositório `HenriqueJulianoAraldi/promosnow` e conferir o esquema existente antes de aplicar.
 
 ## 1. Banco e administrador
 

@@ -14,9 +14,15 @@ Este documento atualiza a proposta histórica em `architecture.md`.
 - Redirecionamento de afiliado com validação de destino e contagem agregada opcional; não gera links de afiliado.
 - Testes PostgreSQL local de permissões/regras e testes dos provedores com respostas simuladas.
 
-## Pendente nas contas reais
+## Validado nas contas reais
 
-Aplicar a migração ao projeto confirmado, autorizar o administrador, configurar o modo real na Vercel e validar os fluxos no preview. Nenhuma migração externa foi aplicada nesta entrega e nenhuma mensagem foi enviada pelo agente.
+Projeto Supabase `promosnow`: migrações `20260914125220_catalog.sql` e `20260914125532_api_permissions.sql` aplicadas. API pública retorna catálogo vazio; tabelas privadas e escrita anônima retornam HTTP 401. Não foram inseridos produtos ou ofertas fictícias no banco.
+
+As funções privilegiadas ficam no esquema privado, com interfaces públicas `SECURITY INVOKER` e permissões explícitas. Advisors não apresentam avisos de segurança; o registro informativo de RLS sem política em `private.click_buckets` é intencional, pois essa tabela não permite acesso direto.
+
+Vercel: projeto correto, Node.js 24 e preview da branch com status Ready. Produção ainda usa a base da PR #1. O preview está em modo demonstração; falta `DATA_MODE=supabase`, URL canônica e conferência das variáveis no ambiente correto. O plugin de leitura da Vercel não expõe alteração de variáveis; a CLI deste ambiente não possui sessão autenticada.
+
+Supabase Auth ainda não contém usuários. Criar a conta administrativa no dashboard e depois autorizar seu UUID. Nenhuma mensagem foi enviada pelo agente. Mercado Livre e Telegram ainda exigem validação real.
 
 ## Limites funcionais
 
