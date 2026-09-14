@@ -25,6 +25,7 @@ export function getAppState(): "demo" | "setup" | "live" {
       operation: "config",
       code: "invalid_config",
       field: error instanceof ConfigurationError ? error.field : "unknown",
+      reason: error instanceof ConfigurationError ? error.reason : "unknown",
     });
     return "setup";
   }

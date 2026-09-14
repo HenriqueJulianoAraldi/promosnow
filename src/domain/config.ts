@@ -8,9 +8,11 @@ export type AppConfig = {
 };
 export class ConfigurationError extends Error {
   readonly field: string;
-  constructor(field: string) {
+  readonly reason: "missing" | "invalid";
+  constructor(field: string, reason: "missing" | "invalid" = "invalid") {
     super(`Configuração inválida: ${field}`);
     this.field = field;
+    this.reason = reason;
   }
 }
 function flag(env: Env, name: string): boolean {
@@ -50,7 +52,7 @@ export function parseConfig(env: Env): AppConfig {
     throw new ConfigurationError("APP_TIMEZONE");
   }
   const required = (name: string) => {
-    if (!env[name]?.trim()) throw new ConfigurationError(name);
+    if (!env[name]?.trim()) throw new ConfigurationError(name, "missing");
   };
   if (dataMode === "supabase") {
     required("NEXT_PUBLIC_SUPABASE_URL");
