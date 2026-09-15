@@ -14,13 +14,18 @@ export function Catalog({
   const [category, setCategory] = useState("");
   const [sort, setSort] = useState("featured");
   const list = selectOffers(offers, { query, category, sort });
+  const hasFilters = Boolean(query || category);
+  function clearFilters() {
+    setQuery("");
+    setCategory("");
+  }
   return (
     <section className="catalog container" id="ofertas">
       <div className="section-heading">
         <div>
           <span className="eyebrow">EXPLORE O CATÁLOGO</span>
           <h2>
-            Um achado para cada dia<span className="orange">.</span>
+            Encontre seu próximo achado<span className="accent">.</span>
           </h2>
         </div>
         <span className="muted">
@@ -71,10 +76,22 @@ export function Catalog({
           </button>
         ))}
       </div>
-      <p className="result-count" role="status">
-        {list.length}{" "}
-        {list.length === 1 ? "oferta encontrada" : "ofertas encontradas"}
-      </p>
+      <div className="catalog-results">
+        <p
+          className="result-count"
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          {list.length}{" "}
+          {list.length === 1 ? "oferta encontrada" : "ofertas encontradas"}
+        </p>
+        {hasFilters && (
+          <button className="clear-filters" onClick={clearFilters}>
+            Limpar filtros
+          </button>
+        )}
+      </div>
       {list.length ? (
         <div className="offer-grid">
           {list.map((offer) => (
@@ -83,18 +100,22 @@ export function Catalog({
         </div>
       ) : (
         <div className="empty-state">
-          <Icon name="search" size={32} />
-          <h3>Nenhum achado por aqui ainda.</h3>
-          <p>Tente outro termo ou escolha uma categoria diferente.</p>
-          <button
-            className="button dark"
-            onClick={() => {
-              setQuery("");
-              setCategory("");
-            }}
-          >
-            Limpar filtros
-          </button>
+          <Icon name={offers.length ? "search" : "tag"} size={32} />
+          <h3>
+            {offers.length
+              ? "Não encontramos essa combinação."
+              : "Os próximos achados estão a caminho."}
+          </h3>
+          <p>
+            {offers.length
+              ? "Tente outro termo ou limpe os filtros para ver a seleção completa."
+              : "Assim que uma oferta estiver disponível, ela aparece aqui. Volte em breve para conferir."}
+          </p>
+          {hasFilters && (
+            <button className="button dark" onClick={clearFilters}>
+              Limpar filtros
+            </button>
+          )}
         </div>
       )}
     </section>

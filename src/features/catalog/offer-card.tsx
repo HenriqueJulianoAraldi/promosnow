@@ -49,6 +49,9 @@ export function OfferCard({ offer }: { offer: Offer }) {
             <Icon name="arrow" />
           </Link>
         </div>
+        <Link className="card-cta" href={`/ofertas/${offer.slug}`}>
+          Ver detalhes <Icon name="arrow" size={17} />
+        </Link>
         <p className="price-note">
           {offer.demo === false
             ? "Confira preço e condições na loja"

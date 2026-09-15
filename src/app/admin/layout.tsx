@@ -29,25 +29,30 @@ export default async function AdminLayout({
             <br />
             {demo
               ? "Alterações não são salvas."
-              : "Dados armazenados no Supabase."}
+              : "Sua curadoria em um só lugar."}
           </p>
           <Link href="/">← Voltar ao site</Link>
-          {!demo && (
-            <form action={signOut}>
-              <button className="chip">Sair da conta</button>
-            </form>
-          )}
         </div>
       </aside>
       <div className="admin-main">
         <header className="admin-topbar">
           <span>Seu espaço de curadoria</span>
-          <span
-            className="avatar"
-            aria-label={demo ? "Perfil de demonstração" : "Administração"}
-          >
-            PN
-          </span>
+          <div className="admin-account">
+            <Link href="/" className="text-link">
+              Ver site <span aria-hidden="true">↗</span>
+            </Link>
+            {!demo && (
+              <form action={signOut}>
+                <button className="chip">Sair da conta</button>
+              </form>
+            )}
+            <span
+              className="avatar"
+              aria-label={demo ? "Perfil de demonstração" : "Administração"}
+            >
+              PN
+            </span>
+          </div>
         </header>
         <div className="admin-content">
           {demo && (

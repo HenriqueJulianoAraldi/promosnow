@@ -1,35 +1,14 @@
 import Link from "next/link";
 import { Header, Footer, SetupNotice } from "@/components/shell";
 import { Icon } from "@/components/ui/icon";
-import { ProductArt } from "@/components/ui/product-art";
 import { Catalog } from "@/features/catalog/catalog";
+import { CatalogHero } from "@/features/catalog/catalog-hero";
 import { getAppState } from "@/server/env";
 import { getDemoCatalog, getCatalog } from "@/server/services/catalog";
+
 export default async function Home() {
-  const demo = getAppState() === "demo";
-  if (getAppState() === "live")
-    return (
-      <>
-        <Header />
-        <main>
-          <section className="container about">
-            <span className="eyebrow">PROMOSNOW</span>
-            <h1>
-              Boas escolhas.
-              <br />
-              <span>Novos achados.</span>
-            </h1>
-            <p>
-              Compare as informações e confira as condições na loja. Podemos
-              receber comissão por compras feitas pelos links de afiliado.
-            </p>
-          </section>
-          <Catalog offers={await getCatalog()} demo={false} />
-        </main>
-        <Footer />
-      </>
-    );
-  if (!demo)
+  const state = getAppState();
+  if (state === "setup")
     return (
       <>
         <Header />
@@ -37,99 +16,46 @@ export default async function Home() {
         <Footer />
       </>
     );
+
+  const demo = state === "demo";
+  const offers = demo
+    ? getDemoCatalog().filter((offer) => offer.status === "published")
+    : await getCatalog();
+
   return (
     <>
-      <Header demo />
+      <Header demo={demo} />
       <main>
-        <section className="hero container">
-          <div className="hero-copy">
-            <span className="eyebrow">
-              <span className="tiny-line" /> MENOS BUSCA. MAIS ACHADOS.
-            </span>
-            <h1>
-              Seu próximo
-              <br />
-              bom negócio
-              <br />
-              <span>começa aqui.</span>
-            </h1>
-            <p>
-              Um lugar para descobrir ofertas, comparar escolhas e encontrar o
-              que faz sentido para você.
-            </p>
-            <a className="button dark" href="#ofertas">
-              Explorar os achados <Icon name="arrow" />
-            </a>
-            <div className="hero-footnote">
-              <span className="small-check">
-                <Icon name="check" size={14} />
-              </span>{" "}
-              Uma prévia do que estamos construindo
-            </div>
-          </div>
-          <div className="hero-visual">
-            <div className="orbit orbit-one" />
-            <div className="orbit orbit-two" />
-            <div className="hero-star">✳</div>
-            <div className="hero-product">
-              <span className="hero-product-tag">UM EXEMPLO DE BOM ACHADO</span>
-              <ProductArt kind="headphones" />
-              <div className="hero-product-bottom">
-                <span>Som para o seu dia.</span>
-                <span className="round-link">
-                  <Icon name="arrow" />
-                </span>
-              </div>
-            </div>
-            <div className="floating-label">
-              <span className="logo-mark">
-                <Icon name="tag" />
-              </span>
-              <div>
-                <strong>Vale a descoberta.</strong>
-                <span>Curadoria, em construção</span>
-              </div>
-            </div>
-            <span className="vertical-label">PROMOSNOW / PRIMEIRA EDIÇÃO</span>
-          </div>
-        </section>
+        <CatalogHero featured={offers[0]} demo={demo} />
         <div className="value-strip">
           <div className="container value-inner">
             <span>
-              <Icon name="search" /> Descubra com facilidade
+              <Icon name="search" /> Encontre o que combina com você
             </span>
             <span>
-              <Icon name="tag" /> Compare antes de escolher
+              <Icon name="tag" /> Compare preços e condições
             </span>
             <span>
-              <Icon name="clock" /> Mais tempo para você
+              <Icon name="check" /> Confira os detalhes na loja
             </span>
           </div>
         </div>
-        <Catalog
-          offers={getDemoCatalog().filter(
-            (offer) => offer.status === "published",
-          )}
-        />
-        <section className="container">
-          <div className="telegram-panel">
-            <div className="telegram-symbol">
-              <Icon name="send" size={34} />
-            </div>
+        <Catalog offers={offers} demo={demo} />
+        <section className="container" aria-labelledby="how-title">
+          <div className="discovery-panel">
+            <span className="discovery-icon">
+              <Icon name="bolt" size={32} />
+            </span>
             <div>
-              <span className="eyebrow">OS ACHADOS VÃO ATÉ VOCÊ</span>
-              <h2>
-                Seu próximo achado,
-                <br />
-                direto no Telegram.
-              </h2>
+              <span className="eyebrow">BOA COMPRA COMEÇA COM INFORMAÇÃO</span>
+              <h2 id="how-title">Achou interessante? Confira de perto.</h2>
               <p>
-                Estamos preparando um canal para compartilhar as ofertas. Por
-                enquanto, acompanhe o projeto por aqui.
+                Veja os detalhes de cada oferta e confirme preço, frete e
+                condições na loja antes de comprar.
               </p>
             </div>
-            <Link className="button light" href="/sobre">
-              Conhecer o projeto <Icon name="arrow" />
+            <Link className="button yellow" href="/sobre">
+              Como funciona <Icon name="arrow" />
             </Link>
           </div>
         </section>

@@ -16,8 +16,18 @@ export function AdminNav() {
         <Link
           key={item.href}
           href={item.href}
-          aria-current={path === item.href ? "page" : undefined}
-          className={path === item.href ? "selected" : ""}
+          aria-current={
+            path === item.href ||
+            (item.href !== "/admin" && path.startsWith(item.href + "/"))
+              ? "page"
+              : undefined
+          }
+          className={
+            path === item.href ||
+            (item.href !== "/admin" && path.startsWith(item.href + "/"))
+              ? "selected"
+              : ""
+          }
         >
           <Icon name={item.icon} />
           {item.label}
