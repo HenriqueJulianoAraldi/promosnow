@@ -87,15 +87,12 @@ test("production never exposes demo data, including a conflicting Vercel environ
   );
   assert.equal(parseConfig({}).demoAllowed, true);
 });
-test("flags use exact boolean strings and numbers have bounded positive values", () => {
+test("flags and environment settings reject invalid values", () => {
   assert.doesNotThrow(() =>
     parseConfig({ TELEGRAM_ENABLED: "false", MERCADO_LIVRE_ENABLED: "false" }),
   );
   for (const env of [
     { TELEGRAM_ENABLED: "yes" },
-    { JOB_BATCH_SIZE: "0" },
-    { JOB_BATCH_SIZE: "101" },
-    { PRICE_MAX_AGE_HOURS: "1.5" },
     { APP_TIMEZONE: "invalid" },
     { APP_ENV: "other" },
     { DATA_MODE: "other" },
@@ -124,7 +121,7 @@ test("configured integrations require their secrets but never include values in 
         MERCADO_LIVRE_CLIENT_SECRET: "secret",
         MERCADO_LIVRE_REDIRECT_URI: "http:\/\/localhost",
       }),
-    /MERCADO_LIVRE_REDIRECT_URI/,
+    /MERCADO_LIVRE_ACCESS_TOKEN/,
   );
 });
 test("disabled adapters return explicit failure without any network calls", async () => {

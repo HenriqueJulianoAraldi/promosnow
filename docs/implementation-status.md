@@ -1,36 +1,37 @@
-# Estado da implementação — 13/09/2026
+# Estado da implementação — 14/09/2026
 
 Este documento atualiza a proposta histórica em `architecture.md`.
 
-## Entregue na base 0.1.0
+## Implementado no código
 
-- Next.js App Router, React e TypeScript; CSS responsivo sem serviços de fontes ou imagens.
-- Catálogo pesquisável e filtros por categoria, menor preço e maior desconto.
-- Seis produtos fictícios públicos, um rascunho e um exemplo encerrado para o painel.
-- Detalhes de oferta; rascunhos não possuem página pública; exemplo encerrado não aparece no catálogo.
-- Páginas de apresentação, entrada e painel somente demonstrativo.
-- Painel com visão geral, tabela de produtos/ofertas e prévia local de mensagem.
-- Contratos de integração e adaptadores desativados que retornam falha explícita.
-- Configuração validada no servidor, sem exportar segredos para componentes cliente.
-- Estados vazio, erro, carregamento e página não encontrada; navegação por teclado e responsividade.
-- Testes de regras, configuração, produção e ausência de chamadas nos adaptadores.
+- Demonstração preservada para desenvolvimento/preview; produção não expõe exemplos.
+- Supabase SSR, renovação de cookies, verificação de usuário e lista de administradores.
+- Migração PostgreSQL com RLS e funções de escrita que verificam o administrador. Leitura pública expõe somente ofertas elegíveis.
+- Cadastro conjunto de produto e oferta, edição de rascunho, aprovação, encerramento e confirmação manual de preço.
+- Preço de referência opcional com justificativa; somente descontos válidos são exibidos.
+- Consulta manual da API Mercado Livre pelo código MLB, histórico de preço e retirada de ofertas cujo preço mudou.
+- Prévia do Telegram, confirmação no painel, reserva atômica, gravação de resultado e bloqueio de solicitações duplicadas.
+- Redirecionamento de afiliado com validação de destino e contagem agregada opcional; não gera links de afiliado.
+- Testes PostgreSQL local de permissões/regras e testes dos provedores com respostas simuladas.
 
-## Limites desta entrega
+## Validado nas contas reais
 
-Não há persistência, login real, edição de produtos, migrações aplicadas, API do Mercado Livre, geração de links de afiliado, envio ao Telegram, cliques registrados ou agendamento. As flags reservadas validam a configuração, mas ainda não ativam essas funcionalidades. Nenhuma ação visual declara ter salvo ou enviado algo.
+Projeto Supabase `promosnow`: migrações `20260914125220_catalog.sql` e `20260914125532_api_permissions.sql` aplicadas. API pública retorna catálogo vazio; tabelas privadas e escrita anônima retornam HTTP 401. Não foram inseridos produtos ou ofertas fictícias no banco.
 
-O modo `supabase` deliberadamente mostra uma página de preparação até a implementação do repositório de dados e autenticação. Não confundir credenciais preenchidas com integração concluída.
+As funções privilegiadas ficam no esquema privado, com interfaces públicas `SECURITY INVOKER` e permissões explícitas. Advisors não apresentam avisos de segurança; o registro informativo de RLS sem política em `private.click_buckets` é intencional, pois essa tabela não permite acesso direto.
 
-Em produção, `demoAllowed` é sempre falso. A variável da Vercel `VERCEL_ENV=production` prevalece sobre `APP_ENV`. Fora da Vercel, `APP_ENV` deve refletir o ambiente real; sem ela, `NODE_ENV=production` bloqueia a demonstração. Os previews da Vercel e o desenvolvimento local podem mostrar o catálogo fictício. Todas as rotas são dinâmicas para não congelar a decisão de ambiente no build. Não há rota de mutação nem autenticação simulada que conceda acesso real. A proteção da demo não substitui o futuro controle por sessão e RLS.
+Vercel: projeto correto, Node.js 24 e preview da branch com status Ready. Produção ainda usa a base da PR #1. O preview está em modo demonstração; falta `DATA_MODE=supabase`, URL canônica e conferência das variáveis no ambiente correto. O plugin de leitura da Vercel não expõe alteração de variáveis; a CLI deste ambiente não possui sessão autenticada.
 
-`admin/layout.tsx` redireciona ao entrar fora da demonstração. A leitura do repositório também é bloqueada no servidor, inclusive em acesso direto às páginas. Supabase Auth e RLS serão obrigatórios antes de qualquer dado real entrar no painel.
+Supabase Auth ainda não contém usuários. Criar a conta administrativa no dashboard e depois autorizar seu UUID. Nenhuma mensagem foi enviada pelo agente. Mercado Livre e Telegram ainda exigem validação real.
 
-O projeto permanece marcado como `noindex` até a entrega do catálogo real. A página de preparação pode ser publicada futuramente sem exibir ofertas fictícias. Nesta entrega não foi solicitado nem realizado deploy.
+## Limites funcionais
 
-## Validação
+Catálogo: 100 registros recentes; painel: 200; histórico do Telegram: 100. Busca e filtros atuam sobre os registros carregados. Edição direta por UUID consulta qualquer rascunho, mesmo fora dos 200 recentes.
 
-Consulte [os resultados e limites da verificação](validation.md). Build, lint, tipos, sete testes e as verificações HTTP de preview/produção passaram. A revisão visual segue pendente por bloqueio de localhost no navegador disponível.
+Não há OAuth/renovação de token do Mercado Livre, coleta automática, agendamento de publicação, geração automática de links, recuperação de senha no aplicativo ou reenvio/reconciliação de publicação. A consulta exige token válido configurado. Telegram admite uma solicitação por oferta/canal; resultado incerto requer conferência manual, sem nova chamada automática.
 
-## Próxima entrega
+Métricas dependem da chave secreta, segredo de HMAC e cabeçalho confiável da Vercel. São estimativas, não conversões. A regra de atualização é fixa em 24 horas no banco. Não há variável de ambiente que altere esse prazo nesta versão.
 
-Criar projeto Supabase, migrações versionadas e testes de políticas; implementar sessão, administrador autorizado e cadastro manual. Depois conectar os provedores, conforme acesso efetivamente concedido. As dependências do Supabase serão adicionadas nesse momento, evitando pacotes sem uso.
+## Lançamento
+
+`noindex` permanece ativo. Testes locais não substituem autenticação, RLS, API, envio e revisão visual nas contas reais. Seguir [o roteiro de ativação](activation.md) e [os resultados da validação](validation.md).

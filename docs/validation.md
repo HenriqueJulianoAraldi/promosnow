@@ -1,22 +1,33 @@
-# Validação da base inicial
+# Validação do catálogo persistente
 
-Verificação local em 13/09/2026, Node.js 24.19.0.
+Verificação local em 14/09/2026, Node.js 24. Reproduzir com `npm ci` e `npm run check`.
 
 | Verificação | Resultado |
 | --- | --- |
-| ESLint | Passou com a versão 9.39.5 |
-| TypeScript | Passou sem erros |
-| Testes do domínio/configuração/adaptadores | 7 testes passaram |
+| ESLint 9.39.5 | Passou |
+| TypeScript | Passou |
+| Testes Node | 11 passaram |
+| Migração executada no PostgreSQL PGlite | Passou |
 | Build Next.js | Passou |
-| HTTP em preview | Passou: catálogo, painel, detalhes, erro 404 e bloqueio de rascunhos |
-| HTTP em produção | Passou: página de preparação, painel redirecionado e exemplos inacessíveis |
+| HTTP preview | Passou: catálogo, painel e detalhes demonstrativos; rascunhos 404 |
+| HTTP produção sem modo real | Passou: preparação, painel redirecionado, exemplos 404 |
 
-Reproduzir com `npm run check`. `npm run test:http` precisa do build e usa as portas 3101 e 3102.
+## O que os testes cobrem
 
-## Limitações
+O teste de banco executa a migração em um PostgreSQL isolado, com papéis `anon`, `authenticated`, `service_role` e uma implementação local de `auth.uid()`. Verifica anonimato, administrador e usuário sem acesso; proíbe escrita direta e promoção de usuário; testa rascunho, aprovação, encerramento, preço inválido, URLs, referência, validade, disponibilidade e preço desatualizado. Verifica reserva única de publicação, token da reserva, resultado definitivo, duplicação de histórico e contagem de cliques.
 
-A revisão visual e as interações no navegador não foram concluídas: o navegador disponível bloqueou o endereço localhost deste ambiente. A responsividade foi implementada em CSS, mas ainda deve ser conferida em um preview acessível, especialmente busca/filtros, navegação por teclado e layout no celular. Testes HTTP não substituem essa verificação.
+Os testes dos provedores usam respostas simuladas: anúncio/currency incorretos, destinos não permitidos, falta de configuração, limite de API, confirmação por message_id e resultado incerto sem retry. O teste de texto verifica a origem Telegram e divulgação de afiliado.
 
-ESLint 10 apresentou incompatibilidade com uma regra React utilizada pelo `eslint-config-next`; o projeto fixa 9.39.5, que passa no lint. O registro npm marca a série 9 como fora de suporte. Trata-se de ferramenta de desenvolvimento: a atualização deve ser retomada quando a configuração React/Next aceitar a série 10, sem desativar as regras para mascarar o erro.
+## Limites
 
-Nenhum teste acessou Supabase, Mercado Livre ou Telegram. Não há credenciais reais configuradas. As integrações e suas políticas de acesso ainda não foram implementadas.
+PGlite não é uma instância Supabase hospedada e usa uma simulação da identidade Auth. PostgREST foi verificado no projeto real: catálogo HTTP 200 com lista vazia, tabelas privadas e escrita anônima HTTP 401, link inexistente sem destino. Ainda faltam sessão/cookies e escrita com administrador autorizado, além das consultas e envios com contas externas. Nenhum teste local envia mensagem ao Telegram.
+
+A página inicial foi revisada visualmente no preview desktop. Busca e combinação de filtros foram exercitadas no navegador. Permanecem pendentes formulários reais, login, celular e revisão completa por teclado. As verificações HTTP locais cobrem demonstração e preparação; não comprovam o fluxo de dados reais ponta a ponta.
+
+ESLint 10 apresentou incompatibilidade com uma regra React do `eslint-config-next`; permanece fixado em 9.39.5. O npm marca essa série como fora de suporte. Retomar a atualização quando a configuração aceitar a série 10, sem desativar regras para mascarar o problema.
+
+## Supabase e Vercel reais
+
+As duas migrações foram aplicadas ao projeto correto e testadas em sequência no PGlite. Após os ajustes, os advisors do Supabase não retornam avisos de segurança; há apenas o informativo esperado de RLS sem política em `private.click_buckets`. Essa tabela é interna e deliberadamente não aceita acesso direto. [Explicação do advisor](https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy).
+
+O preview gerado pela Vercel compilou com status Ready. A página de entrada foi consultada por HTTP e continua em demonstração. Isso não comprova o login real: faltam ativar o modo Supabase e criar o administrador.

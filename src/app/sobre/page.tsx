@@ -1,7 +1,45 @@
+import { getAppState } from "@/server/env";
 import Link from "next/link";
 import { Header, Footer } from "@/components/shell";
 import { Icon } from "@/components/ui/icon";
 export default function About() {
+  if (getAppState() === "live")
+    return (
+      <>
+        <Header />
+        <main className="container about">
+          <span className="eyebrow">SOBRE O PROMOSNOW</span>
+          <h1>Escolhas com mais informação.</h1>
+          <p>
+            Reunimos ofertas revisadas pelo responsável pelo catálogo. Não
+            vendemos produtos: a compra acontece no Mercado Livre, onde você
+            deve conferir preço, frete e condições.
+          </p>
+          <h2>Links de afiliado</h2>
+          <p>
+            Podemos receber comissão quando você compra pelos nossos links, sem
+            custo adicional para você.
+          </p>
+          <h2>Preços e disponibilidade</h2>
+          <p>
+            O catálogo mostra quando o preço foi conferido. Uma oferta deixa de
+            aparecer quando vence, fica indisponível ou sua última verificação
+            ultrapassa 24 horas.
+          </p>
+          <h2>Métricas</h2>
+          <p>
+            Quando ativadas, contamos acessos aos links de forma agregada. Esses
+            números não representam pessoas únicas ou compras. Endereços IP não
+            são armazenados em texto; uma chave temporária é utilizada para
+            reduzir contagens repetidas.
+          </p>
+          <Link className="button dark" href="/">
+            Ver ofertas
+          </Link>
+        </main>
+        <Footer />
+      </>
+    );
   return (
     <>
       <Header />

@@ -5,7 +5,7 @@ import {
   formatMoney,
   type Offer,
 } from "@/domain/catalog";
-import { ProductArt } from "@/components/ui/product-art";
+import { OfferImage } from "@/components/ui/offer-image";
 import { Icon } from "@/components/ui/icon";
 export function OfferCard({ offer }: { offer: Offer }) {
   const discount = discountPercent(offer.priceCents, offer.referencePriceCents);
@@ -14,18 +14,20 @@ export function OfferCard({ offer }: { offer: Offer }) {
       <Link
         className={`art-wrap ${offer.color}`}
         href={`/ofertas/${offer.slug}`}
-        aria-label={`Ver exemplo: ${offer.title}`}
+        aria-label={`Ver oferta: ${offer.title}`}
       >
-        <span className="discount">−{discount}%</span>
-        <ProductArt kind={offer.art} />
-        <span className="art-label">ILUSTRAÇÃO</span>
+        {discount !== null && <span className="discount">−{discount}%</span>}
+        <OfferImage offer={offer} />
+        <span className="art-label">
+          {offer.imageUrl ? "PRODUTO" : "ILUSTRAÇÃO"}
+        </span>
       </Link>
       <div className="card-body">
         <div className="card-meta">
           <span>
             {categories.find((c) => c.value === offer.category)?.label}
           </span>
-          <span>Exemplo</span>
+          <span>{offer.demo === false ? "Afiliado" : "Exemplo"}</span>
         </div>
         <h3>
           <Link href={`/ofertas/${offer.slug}`}>{offer.title}</Link>
@@ -33,7 +35,9 @@ export function OfferCard({ offer }: { offer: Offer }) {
         <div className="price-row">
           <div>
             <span className="old-price">
-              {formatMoney(offer.referencePriceCents)}
+              {offer.referencePriceCents !== null
+                ? formatMoney(offer.referencePriceCents)
+                : ""}
             </span>
             <strong>{formatMoney(offer.priceCents)}</strong>
           </div>
@@ -45,7 +49,14 @@ export function OfferCard({ offer }: { offer: Offer }) {
             <Icon name="arrow" />
           </Link>
         </div>
-        <p className="price-note">Preço fictício para demonstração</p>
+        <Link className="card-cta" href={`/ofertas/${offer.slug}`}>
+          Ver detalhes <Icon name="arrow" size={17} />
+        </Link>
+        <p className="price-note">
+          {offer.demo === false
+            ? "Confira preço e condições na loja"
+            : "Preço fictício para demonstração"}
+        </p>
       </div>
     </article>
   );

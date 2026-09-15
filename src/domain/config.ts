@@ -5,34 +5,20 @@ export type AppConfig = {
   dataMode: "demo" | "supabase";
   demoAllowed: boolean;
   timezone: string;
-  priceMaxAgeHours: number;
-  jobBatchSize: number;
 };
 export class ConfigurationError extends Error {
   readonly field: string;
-  constructor(field: string) {
+  readonly reason: "missing" | "invalid";
+  constructor(field: string, reason: "missing" | "invalid" = "invalid") {
     super(`Configuração inválida: ${field}`);
     this.field = field;
+    this.reason = reason;
   }
 }
 function flag(env: Env, name: string): boolean {
   const value = env[name] || "false";
   if (value !== "true" && value !== "false") throw new ConfigurationError(name);
   return value === "true";
-}
-function integer(
-  env: Env,
-  name: string,
-  fallback: number,
-  max: number,
-): number {
-  const text = env[name];
-  if (!text) return fallback;
-  if (!/^\d+$/.test(text)) throw new ConfigurationError(name);
-  const n = Number(text);
-  if (!Number.isSafeInteger(n) || n < 1 || n > max)
-    throw new ConfigurationError(name);
-  return n;
 }
 export function parseConfig(env: Env): AppConfig {
   const environment =
@@ -66,12 +52,12 @@ export function parseConfig(env: Env): AppConfig {
     throw new ConfigurationError("APP_TIMEZONE");
   }
   const required = (name: string) => {
-    if (!env[name]?.trim()) throw new ConfigurationError(name);
+    if (!env[name]?.trim()) throw new ConfigurationError(name, "missing");
   };
   if (dataMode === "supabase") {
     required("NEXT_PUBLIC_SUPABASE_URL");
     required("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY");
-    required("SUPABASE_SECRET_KEY");
+
     try {
       if (new URL(env.NEXT_PUBLIC_SUPABASE_URL!).protocol !== "https:")
         throw new Error();
@@ -79,17 +65,8 @@ export function parseConfig(env: Env): AppConfig {
       throw new ConfigurationError("NEXT_PUBLIC_SUPABASE_URL");
     }
   }
-  if (flag(env, "MERCADO_LIVRE_ENABLED")) {
-    required("MERCADO_LIVRE_CLIENT_ID");
-    required("MERCADO_LIVRE_CLIENT_SECRET");
-    required("MERCADO_LIVRE_REDIRECT_URI");
-    try {
-      if (new URL(env.MERCADO_LIVRE_REDIRECT_URI!).protocol !== "https:")
-        throw new Error();
-    } catch {
-      throw new ConfigurationError("MERCADO_LIVRE_REDIRECT_URI");
-    }
-  }
+  if (flag(env, "MERCADO_LIVRE_ENABLED"))
+    required("MERCADO_LIVRE_ACCESS_TOKEN");
   if (flag(env, "TELEGRAM_ENABLED")) {
     required("TELEGRAM_BOT_TOKEN");
     required("TELEGRAM_CHANNEL_ID");
@@ -100,7 +77,5 @@ export function parseConfig(env: Env): AppConfig {
     dataMode,
     demoAllowed: dataMode === "demo" && environment !== "production",
     timezone,
-    priceMaxAgeHours: integer(env, "PRICE_MAX_AGE_HOURS", 24, 168),
-    jobBatchSize: integer(env, "JOB_BATCH_SIZE", 10, 100),
   };
 }

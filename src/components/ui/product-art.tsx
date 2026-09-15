@@ -15,6 +15,11 @@ export function ProductArt({ kind }: { kind: Art }) {
         fill="currentColor"
         opacity=".08"
       />
+      {kind === "box" && (
+        <g stroke="#8e9780" strokeWidth="4">
+          <path d="m100 80 60-30 60 30v80l-60 30-60-30V80Zm0 0 60 30 60-30m-60 30v80" />
+        </g>
+      )}
       {kind === "headphones" && (
         <g stroke="#272536" strokeWidth="17" strokeLinecap="round">
           <path d="M91 137v-30a69 69 0 0 1 138 0v30" />

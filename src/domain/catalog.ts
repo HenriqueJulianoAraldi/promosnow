@@ -5,7 +5,8 @@ export type ProductArt =
   | "keyboard"
   | "lamp"
   | "speaker"
-  | "bottle";
+  | "bottle"
+  | "box";
 export type Offer = {
   id: string;
   slug: string;
@@ -13,11 +14,17 @@ export type Offer = {
   description: string;
   category: Category;
   priceCents: number;
-  referencePriceCents: number;
+  referencePriceCents: number | null;
   status: "draft" | "published" | "expired";
   art: ProductArt;
   color: string;
   featured: boolean;
+  demo?: boolean;
+  imageUrl?: string;
+  linkCode?: string;
+  checkedAt?: string;
+  expiresAt?: string;
+  referenceBasis?: string;
 };
 export const categories: { value: Category; label: string }[] = [
   { value: "tecnologia", label: "Tecnologia" },
@@ -35,9 +42,10 @@ export function formatMoney(cents: number): string {
 }
 export function discountPercent(
   price: number,
-  reference: number,
+  reference: number | null,
 ): number | null {
   if (
+    reference === null ||
     ![price, reference].every(Number.isSafeInteger) ||
     price <= 0 ||
     reference <= price
